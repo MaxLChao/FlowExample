@@ -51,8 +51,10 @@ Here we see a few arguments that will need to be inputed, and there are a couple
 columns in our pairs table that may need to be renamed. The task text table format is something
 like this:
 
+|col1|col2|col3|col4|col5|
+|---|---|---|---|---|
 |input or output|value name inside the Job class| input label/colname of the file| class expected of input| any default argument|
-|---|---|---|---|
+
 
 For more information on how to set up jobs, the [wiki](http://mskiweb/101/flow.html) on Flow is a good
 source to follow.
@@ -167,11 +169,16 @@ Using the Complex JaBbA output from the Events job:
 
 3. Generate a gWalk of one of these SV events.
 
+4. Plot and save these plots via `ppng` or `ppdf` on mskiweb.
+
 ## Resources and More Reading:
+
+Read into these in your free time!
 
 101 on Flow Usage: http://mskiweb/101/flow.html
 
 Links to Tools within the pipeline:
+
 1. [Svaba](https://github.com/walaj/svaba)
 2. [Strelka2](https://github.com/Illumina/strelka)
 3. [fragcounter](https://github.com/mskilab/fragCounter)
