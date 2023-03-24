@@ -6,7 +6,7 @@ suppressMessages(
   suppressWarnings(sapply(libs, require, character.only = TRUE))
 )
 
-# Set our environment together
+# Set our Flow directory together
 flowdir = normalizePath("./Flow")
 
 # load in our pairs
@@ -16,10 +16,11 @@ pairs = readRDS("db/pairs.rds")
 Flow::task("~/tasks/hg19/core/HetPileups.task")
 ## alter the pairs table to match the descriptions
 
-# run the job
+
 het.jb = Job('~/tasks/hg19/core/HetPileups.task', 
              pairs, 
-             mem = 36, cores = 4, 
+             mem = 36, 
+             cores = 4, 
              rootdir = flowdir, 
              update_cores = 50)
 
@@ -56,12 +57,12 @@ Flow::Task("~/tasks/hg19/core/fragCounter.normal.task")
 #Job()
 # srun()
 
-# can create a list of these jobs post srun
+# can create a list of these jobs post srun I.E.:
 # bam.jbs = list(Strelka = strelka.jb, Svaba = svaba.jb, 
 #      FragTumor = frag.t.jb, FragNormal = frag.n.jb, 
 #      Hets = het.jb)
 
-## can check on them via this list or separately:
+## Then we can check on them via this list or separately:
 # lapply(bam.jbs, function(x){
 #   Flow::update(x, mc.cores =50)
 # })
@@ -74,9 +75,11 @@ Flow::Task("~/tasks/hg19/core/fragCounter.normal.task")
 #   outputs(x)
 # })
 # outs.bams = outs.bams %>% purrr::reduce(merge)
-# pairs_tab = merge(pairs, outs.bams)
-# setDT(pairs_tab); setkey(pairs_tab, 'pair')
+# pairs = merge(pairs, outs.bams)
+# setDT(pairs); setkey(pairs, 'pair')
 
+## Here we should save the files:
+staveRDS(pairs, "db/pairs.rds", note = "DATE HERE. Any note about job outputs added.")
 
 ##### POST BAM JOBS ######
 # past step 1. Nice!
@@ -100,15 +103,14 @@ srun(dc.n.jb)
 # pairs = merge()
 
 ## CBS
-# cbs.ent = pairs %>%
+# cbs.inp = pairs %>%
 #   mutate(field = "foreground",
 #          mask = "~/projects/gGnome/files/zc_stash/maskA_re.rds") %>%
 #   setkey('pair')
 # 
-# cbs.jb = Job('~/mc_tasks/CBS_mc.task', cbs.ent, rootdir = flowdir, mem = 16, 
+# cbs.jb = Job('~/tasks/hg19/core/CBS.task', cbs.inp, rootdir = flowdir, mem = 16, 
 #              cores = 1, update_cores = 100, time = '0-12')
-
-srun(cbs.jb)
+# srun(cbs.jb)
 
 
 ### JabBa ###
@@ -121,7 +123,7 @@ jab.fin = pairs %>%
          blacklist.coverage = "~/projects/gGnome/files/zc_stash/maskA_re.rds") %>%
   select(., -c(cbs_cov_rds,)) %>%
   dplyr::rename(cbs_cov_rds = tumor_dryclean_cov) %>%
-  dplyr::rename(cov_rds = cbs_cov_rds, 
+  dplyr::rename(cov_rds = tumor_dryclean_cov, 
                 junctionFilePath = svaba_somatic_vcf) %>%
   mutate(iter = 2, flags = "--rescue.window 10000 --rescue.all TRUE") %>%
   data.table %>% setkey('pair')
@@ -147,11 +149,10 @@ events.jb = Job("~/tasks/Events.task",
                 update_cores = 100,
                 time = '3-00')
 srun(events.jb)
-#pairs = merge()
-#
+# pairs = merge()
+# staveRDS()
 
 ## Visualizing one of the outputs
-
 # events = readRDS(pairs$complex[[1]])
 library(gGnome)
 # pick an event and plot
