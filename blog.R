@@ -122,11 +122,15 @@ jab.fin = pairs %>%
          lp = T, ism = T,
          blacklist.coverage = "~/projects/gGnome/files/zc_stash/maskA_re.rds") %>%
   select(., -c(cbs_cov_rds,)) %>%
-  dplyr::rename(cbs_cov_rds = tumor_dryclean_cov) %>%
+  dplyr::mutate(cbs_cov_rds = tumor_dryclean_cov) %>%
   dplyr::rename(cov_rds = tumor_dryclean_cov, 
                 junctionFilePath = svaba_somatic_vcf) %>%
   mutate(iter = 2, flags = "--rescue.window 10000 --rescue.all TRUE") %>%
   data.table %>% setkey('pair')
+
+# PLEASE GIT CLONE THE JABBA PACKAGE via command line in your git folder
+# git clone https://github.com/mskilab/JaBbA.git
+# Required for this next task
 
 Jab.jb = Job(task = "~/tasks/JaBbA_ZC_dev.task", jab.fin, 
     rootdir = flowdir,
