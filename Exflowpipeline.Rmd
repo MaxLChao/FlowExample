@@ -96,7 +96,7 @@ dryclean normal: `~/tasks/hg19/core_dryclean/Dryclean.normal.task`
 dryclean tumor: `~/tasks/hg19/core_dryclean/Dryclean.task`
 
 
-Then we use CBS to get our segments ready for JaBbA.
+Then we use CBS to get our segments ready for JaBbA. The task expects the fragcounter outputs, so we'll need to use a temporary pairs table to edit our colnames for our dryclean outputs to match what CBS task expects.
 
 After this step is done, run CovCBS: `~/tasks/hg19/core/CBS.task`
 
