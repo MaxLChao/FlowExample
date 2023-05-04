@@ -128,7 +128,7 @@ jab.fin = pairs %>%
   mutate(blacklist.coverage = "~/projects/gGnome/files/zc_stash/maskA_re.rds") %>%
   data.table %>% setkey('pair')
 
-Jab.jb = Job(task = "~/tasks/hg19/core_dryclean/JaBbA.task", jab.fin, 
+Jab.jb = Job(task = "~/tasks/JaBbA_ZC_dev.task", jab.fin,
     rootdir = flowdir,
     mem = 64, cores = 8, 
     update_cores = 100,
