@@ -44,7 +44,7 @@ The first one is the hetpileup caller, which generates a pile up of our allele f
 for a sample.
 
 ```{bash hetpileup}
-cat  ~/tasks/hg19/core/HetPileups.task
+cat  ~/tasks/hg19/core_dryclean/HetPileups.task
 ```
 
 Here we see a few arguments that will need to be inputed, and there are a couple 
@@ -66,11 +66,11 @@ Here's a table of the BAM jobs to run:
 
 |tool|task location|description|
 |---|---|---|
-|Svaba|`~/tasks/hg19/core/Svaba.task`|SV caller|
-|Strelka|`~/tasks/hg19/core/Strelka2`|SNV caller|
-|fragcounter (on tumor)|`~/tasks/hg19/core/fragCounter.task`|fragment counting across the genome with GC and mappability corrections|
-|fragcounter (on normal)|`~/tasks/hg19/core/fragCounter.normal.task`|same as above but for normal|
-|HetPileup|`~/tasks/hg19/core/HetPileups.task`|Get allele fractions for het sites across genome|
+|Svaba|`~/tasks/hg19/core_dryclean/Svaba.task`|SV caller|
+|Strelka|`~/tasks/hg19/core_dryclean/Strelka2`|SNV caller|
+|fragcounter (on tumor)|`~/tasks/hg19/core_dryclean/fragCounter.task`|fragment counting across the genome with GC and mappability corrections|
+|fragcounter (on normal)|`~/tasks/hg19/core_dryclean/fragCounter.normal.task`|same as above but for normal|
+|HetPileup|`~/tasks/hg19/core_dryclean/HetPileups.task`|Get allele fractions for het sites across genome|
 
 **After all of these steps are ran and processed, remember to merge their outputs together and
 save this into our pairs table.**
@@ -98,7 +98,7 @@ dryclean tumor: `~/tasks/hg19/core_dryclean/Dryclean.task`
 
 Then we use CBS to get our segments ready for JaBbA.
 
-After this step is done, run CovCBS: `~/tasks/hg19/core/CBS.task`
+After this step is done, run CovCBS: `~/tasks/hg19/core_dryclean/CBS.task`
 
 **MERGE ALL OF THIS INTO YOUR PAIRS TABLE BEFORE PROCEEDING.**
 
@@ -113,27 +113,26 @@ The task is: `~/tasks/ascat_seg.task`
 ## Running JaBbA
 
 Now that we have all the right inputs, it's time to run JaBbA.
-
-The task is located here: `~/tasks/JaBbA_ZC_dev.task`
+The task is located here: `~/tasks/hg19/core_dryclean/JaBbA.task`
 
 and looking into the task:
 
 ```{r taskjab}
-Flow::Task("~/tasks/JaBbA_ZC_dev.task")
+Flow::Task("~/tasks/hg19/core_dryclean/JaBbA.task")
 ```
 
 We have bunch of values that will need to be filled. Here are some of the inputs
 that will need to be altered to:
 
-1. `cov_rds` should be `tumor_dryclean_cov`
-2. `junctionFilePath` should be `svaba_somatic_vcf`
-3. `CovField` should be `foreground` if you are following the blog file
+1. `tumor_dryclean_cov` should be `tumor_dryclean_cov`
+2. `svaba_somatic_vcf` should be `svaba_somatic_vcf`
+3. `field` should be `foreground` if you are following the blog file
 4. `cbs_seg_rds` should match `cbs` outputs from the merge.
 5. `cbs_nseg_rds` should match `cbs` outrputs from the merge.
 6. `het_pileups_wgs` should be the het_pileup `sites.txt` output for that file.
 
-Purity and ploidy values can be precalculated via the ascat job and inputted here; otherwise
-the task and JaBbA will estimate these for you.
+*Purity and ploidy values can be precalculated via the ascat job and inputted here; otherwise
+the task and JaBbA will estimate these for you.*
 
 There are a few other estimated parameters that can be played around with for the fits,
 and in your free time, I would recommend playing around with these to see how the solver

@@ -13,11 +13,11 @@ flowdir = normalizePath("./Flow")
 pairs = readRDS("db/pairs.rds")
 
 # Set up HetPileup
-Flow::task("~/tasks/hg19/core/HetPileups.task")
+Flow::task("~/tasks/hg19/core_dryclean/HetPileups.task")
 ## alter the pairs table to match the descriptions
 
 
-het.jb = Job('~/tasks/hg19/core/HetPileups.task', 
+het.jb = Job('~/tasks/hg19/core_dryclean/HetPileups.task', 
              pairs, 
              mem = 36, 
              cores = 4, 
@@ -31,28 +31,35 @@ het.jb = Job('~/tasks/hg19/core/HetPileups.task',
 srun(het.jb)
 update(het.jb)
 # next Strelka
-# ~/tasks/hg19/core/Strelka2.task
-Flow::Task("~/tasks/hg19/core/Strelka2.task")
+# ~/tasks/hg19/core_dryclean/Strelka2.task
+
+# Here we have a set of PONS that we can use, there is a default one provided
+# but this one below is the most up to date
+pairs = pairs %>%
+  dplyr::mutate(dryclean_pon = "~/data/dryclean/MONSTER_PON_RAW/MONSTER_PON_RAW_SORTED/fixed.detergent.rds"
+                ) %>% setkey('pair')
+
+Flow::Task("~/tasks/hg19/core_dryclean/Strelka2.task")
 # Create your job
 #Job()
 # srun()
 
 # Svaba
-# ~/tasks/hg19/core/Svaba.task
-Flow::Task("~/tasks/hg19/core/Svaba.task")
+# ~/tasks/hg19/core_dryclean/Svaba.task
+Flow::Task("~/tasks/hg19/core_dryclean/Svaba.task")
 # Create your job
 #Job()
 # srun()
 
 
 # fragcounter
-Flow::Task("~/tasks/hg19/core/fragCounter.task")
+Flow::Task("~/tasks/hg19/core_dryclean/fragCounter.task")
 # Create your job
 #Job()
 # srun()
 
 # fragcounter normal
-Flow::Task("~/tasks/hg19/core/fragCounter.normal.task")
+Flow::Task("~/tasks/hg19/core_dryclean/fragCounter.normal.task")
 # Create your job
 #Job()
 # srun()
@@ -108,27 +115,20 @@ srun(dc.n.jb)
 #          mask = "~/projects/gGnome/files/zc_stash/maskA_re.rds") %>%
 #   setkey('pair')
 # 
-# cbs.jb = Job('~/tasks/hg19/core/CBS.task', cbs.inp, rootdir = flowdir, mem = 16, 
+# cbs.jb = Job('~/tasks/hg19/core_dryclean/CBS.task', cbs.inp, rootdir = flowdir, mem = 16, 
 #              cores = 1, update_cores = 100, time = '0-12')
 # srun(cbs.jb)
 
 
 ### JabBa ###
-# post all of this you are ready to run JaBbA
+# post all of this:
+# you are ready to run JaBbA
 
 jab.fin = pairs %>% 
-  mutate(maxna = 0.8, epgap = 1e-6, tilim = 6000, slack = 100, 
-         iter = 1, field = 'foreground', 
-         lp = T, ism = T,
-         blacklist.coverage = "~/projects/gGnome/files/zc_stash/maskA_re.rds") %>%
-  select(., -c(cbs_cov_rds,)) %>%
-  dplyr::rename(cbs_cov_rds = tumor_dryclean_cov) %>%
-  dplyr::rename(cov_rds = tumor_dryclean_cov, 
-                junctionFilePath = svaba_somatic_vcf) %>%
-  mutate(iter = 2, flags = "--rescue.window 10000 --rescue.all TRUE") %>%
+  mutate(blacklist.coverage = "~/projects/gGnome/files/zc_stash/maskA_re.rds") %>%
   data.table %>% setkey('pair')
 
-Jab.jb = Job(task = "~/tasks/JaBbA_ZC_dev.task", jab.fin, 
+Jab.jb = Job(task = "~/tasks/hg19/core_dryclean/JaBbA.task", jab.fin, 
     rootdir = flowdir,
     mem = 64, cores = 8, 
     update_cores = 100,
