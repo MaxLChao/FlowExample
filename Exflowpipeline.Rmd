@@ -1,7 +1,7 @@
 ---
 title: "FlowExample"
 author: "Max Chao"
-date: "05/04/2023"
+date: "06/26/2023"
 output: html_document
 ---
 
@@ -37,8 +37,8 @@ this out!
 ## BAM jobs
 
 Once we have our generated bams we are going to run a series of jobs on them to generate
-the prerequisites for running JaBbA. There are a series of jobs that will need to done on the bams and they can all be ran in tandem.
-So let's try and get one of these going.
+the prerequisites for running JaBbA. There are a series of jobs that will need to done 
+on the bams and they can all be ran in tandem. So let's try and get one of these going.
 
 The first one is the hetpileup caller, which generates a pile up of our allele fractions
 for a sample.
